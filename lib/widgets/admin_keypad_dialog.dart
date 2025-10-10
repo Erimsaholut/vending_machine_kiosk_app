@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import '../core/sales_data.dart';
 
@@ -41,42 +43,46 @@ class _AdminKeypadDialogState extends State<AdminKeypadDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: SizedBox(
-          width: 250,
-          height: 350,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: 220,
+            maxWidth: 240,
+            maxHeight: 400,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text('PIN girin', style: TextStyle(fontSize: 20)),
+              Text(
+                '*' * _input.length,
+                style: const TextStyle(fontSize: 24, letterSpacing: 6),
+              ),
               const SizedBox(height: 12),
               Expanded(
                 child: GridView.count(
                   crossAxisCount: 3,
                   mainAxisSpacing: 8,
                   crossAxisSpacing: 8,
-                  childAspectRatio: 1,
+                  childAspectRatio: 1.2,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    for (final d in ['1','2','3','4','5','6','7','8','9'])
+                    for (final d in ['1','2','3','4','5','6','7','8','9','C','0','OK'])
                       ElevatedButton(
-                        onPressed: () => _addDigit(d),
+                        onPressed: () {
+                          if (d == 'C') {
+                            _clear();
+                          } else if (d == 'OK') {
+                            _submit();
+                          } else {
+                            _addDigit(d);
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.zero,
+                          minimumSize: const Size(50, 50),
                         ),
                         child: Text(d, style: const TextStyle(fontSize: 18)),
                       ),
-                    ElevatedButton(
-                      onPressed: _clear,
-                      child: const Text('C', style: TextStyle(fontSize: 18)),
-                    ),
-                    ElevatedButton(
-                      onPressed: () => _addDigit('0'),
-                      child: const Text('0', style: TextStyle(fontSize: 18)),
-                    ),
-                    ElevatedButton(
-                      onPressed: _submit,
-                      child: const Text('OK', style: TextStyle(fontSize: 18)),
-                    ),
                   ],
                 ),
               ),

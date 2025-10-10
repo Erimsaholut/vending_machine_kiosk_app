@@ -4,6 +4,7 @@ import '../../core/i18n.dart';
 import '../../widgets/admin_keypad_dialog.dart';
 import '../product/product_page.dart';
 import '../../core/sales_data.dart';
+import '../../widgets/background_scaffold.dart';
 
 /// Wrap any screen with this to auto-return to home after [timeout] of no input.
 class InactivityWrapper extends StatefulWidget {
@@ -72,9 +73,16 @@ class _HomePageState extends State<HomePage> {
         animation: SalesData.instance,
         builder: (context, _) {
           final stock = SalesData.instance.totalStockMl;
-          return Scaffold(
-            body: Stack(
+          return BackgroundScaffold(
+            child: Stack(
               children: [
+                // Background wallpaper
+                Positioned.fill(
+                  child: Image.asset(
+                    'assets/wallpapers/main_background.jpg',
+                    fit: BoxFit.cover,
+                  ),
+                ),
                 // Settings (top right)
                 Positioned(
                   top: 8,
@@ -110,11 +118,11 @@ class _HomePageState extends State<HomePage> {
                 ),
                 // Logo
                 Center(
-                  child: Container(
-                    width: 120,
-                    height: 120,
-                    color: Colors.grey[300],
-                    child: const Center(child: Text("LOGO")),
+                  child: Image.asset(
+                    'assets/buttons/logo.png',
+                    width: 1200,
+                    height: 1200,
+                    fit: BoxFit.contain,
                   ),
                 ),
                 // Start button (bottom center)
@@ -127,15 +135,15 @@ class _HomePageState extends State<HomePage> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: stock < 1000 ? Colors.red : null,
+                        minimumSize: const Size(300, 100),
                       ),
                       onPressed: () {
                         if (stock < 400) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => Scaffold(
-                                appBar: AppBar(title: const Text('Bilgi')),
-                                body: Center(
+                              builder: (_) => BackgroundScaffold(
+                                child: Center(
                                   child: Padding(
                                     padding: const EdgeInsets.all(16),
                                     child: Text(
@@ -162,7 +170,10 @@ class _HomePageState extends State<HomePage> {
                           );
                         }
                       },
-                      child: Text(trEn('Başla', 'Start')),
+                      child: Text(
+                        trEn('Başla', 'Start'),
+                        style: const TextStyle(fontSize: 26),
+                      ),
                     ),
                   ),
                 ),

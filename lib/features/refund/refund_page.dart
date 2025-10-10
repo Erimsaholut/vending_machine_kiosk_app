@@ -1,8 +1,7 @@
-
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/i18n.dart';
+import '../../widgets/background_scaffold.dart';
 
 class RefundPage extends StatefulWidget {
   const RefundPage({super.key});
@@ -34,9 +33,9 @@ class _RefundPageState extends State<RefundPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BackgroundScaffold(
       appBar: AppBar(title: Text(trEn("İade", "Refund"))),
-      body: Center(
+      child: Center(
         child: _refundComplete
             ? Column(
                 mainAxisSize: MainAxisSize.min,

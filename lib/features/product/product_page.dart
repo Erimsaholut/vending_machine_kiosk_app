@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import '../../core/i18n.dart';
 import '../payment/payment_page.dart';
 import '../../core/sales_data.dart';
+import '../../widgets/background_scaffold.dart';
 
 class ProductPage extends StatelessWidget {
   const ProductPage({super.key});
@@ -9,9 +11,9 @@ class ProductPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = SalesData.instance;
-    return Scaffold(
+    return BackgroundScaffold(
       appBar: AppBar(title: Text(trEn('Ürün Seçimi', 'Product Selection'))),
-      body: Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           // küçük
@@ -34,15 +36,29 @@ class ProductPage extends StatelessWidget {
                         );
                       }
                     : null,
-                child: Container(
-                  width: 100, height: 150,
-                  color: data.smallCups > 0 ? Colors.blue[100] : Colors.grey,
-                  child: const Center(child: Text('Resim')),
+                child: SizedBox(
+                  width: 180,
+                  height: 250,
+                  child: ColorFiltered(
+                    colorFilter: data.smallCups > 0
+                        ? const ColorFilter.mode(Colors.transparent, BlendMode.multiply)
+                        : const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                    child: Image.asset(
+                      'assets/buttons/product.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
-              Text(trEn('Küçük Boy','Small')),
-              const Text('300ml - 30₺'),
+              Text(
+                trEn('Küçük Boy','Small'),
+                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                '300ml - 30₺',
+                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               if (data.smallCups <= 0)
                 const Text('Stokta yok', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
             ],
@@ -67,15 +83,29 @@ class ProductPage extends StatelessWidget {
                         );
                       }
                     : null,
-                child: Container(
-                  width: 100, height: 150,
-                  color: data.largeCups > 0 ? Colors.red[100] : Colors.grey,
-                  child: const Center(child: Text('Resim')),
+                child: SizedBox(
+                  width: 220,
+                  height: 300,
+                  child: ColorFiltered(
+                    colorFilter: data.largeCups > 0
+                        ? const ColorFilter.mode(Colors.transparent, BlendMode.multiply)
+                        : const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                    child: Image.asset(
+                      'assets/buttons/product.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
-              Text(trEn('Büyük Boy','Large')),
-              const Text('400ml - 45₺'),
+              Text(
+                trEn('Büyük Boy','Large'),
+                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                '400ml - 45₺',
+                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               if (data.largeCups <= 0)
                 const Text('Stokta yok', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
             ],

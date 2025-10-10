@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../core/i18n.dart';
 import '../../../core/sales_data.dart';
+import '../../../widgets/background_scaffold.dart';
 
 class PreparingPage extends StatefulWidget {
   final String title;
@@ -66,17 +67,20 @@ class _PreparingPageState extends State<PreparingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BackgroundScaffold(
       appBar: AppBar(title: Text(trEn('Hazırlanıyor','Preparing') + ' – ${widget.title} ${widget.volume}')),
-      body: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 220, height: 220,
-              color: Colors.blueGrey[100],
-              child: const Center(child: Text('Hazırlanıyor Görseli')),
+            const SizedBox(
+              width: 220,
+              height: 220,
+              child: CircularProgressIndicator(
+                strokeWidth: 10,
+                color: Colors.blueAccent,
+              ),
             ),
             const SizedBox(height: 24),
             Text(
