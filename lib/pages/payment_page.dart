@@ -22,10 +22,14 @@ class PaymentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final displayName = title == 'smallCup'
+        ? trEn('Küçük Boy', 'Small Cup')
+        : trEn('Büyük Boy', 'Large Cup');
+
     return BackgroundScaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('${trEn('Ödeme','Payment')} – $title $volume $price'),
+        title: Text('${trEn('Ödeme', 'Payment')} – $displayName $volume $price'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
@@ -36,7 +40,9 @@ class PaymentPage extends StatelessWidget {
       ),
       child: SizedBox.expand(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.08),
+          padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width * 0.08,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -64,7 +70,7 @@ class PaymentPage extends StatelessWidget {
                   );
                 },
                 child: Text(
-                  trEn('Ödeme Yapıldı','Payment Completed'),
+                  trEn('Ödeme Yapıldı', 'Payment Completed'),
                   style: const TextStyle(fontSize: 26),
                 ),
               ),

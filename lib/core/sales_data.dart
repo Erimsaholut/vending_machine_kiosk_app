@@ -185,7 +185,7 @@ class SalesData {
           'amountMl': amountMl,
         });
   }
-  /// Unified drink sale method (small or large cup)
+
   Future<void> sellDrink({
     required String title,
     required String volume,
@@ -202,13 +202,18 @@ class SalesData {
     await _ensureDailyLog(day);
 
     await _db.runTransaction((tx) async {
+      // 1️⃣ TÜM OKUMALAR EN BAŞTA
       final mSnap = await tx.get(machineRef);
+      final lSnap = await tx.get(logRef);
+
       final m = (mSnap.data() ?? {});
       final inv = Map<String, dynamic>.from(m['inventory'] ?? {});
       final lv = Map<String, dynamic>.from(m['levels'] ?? {});
       final dp = Map<String, dynamic>.from(m['daily_profit'] ?? {'current_day': day, 'profit_today': 0.0});
       final sales = Map<String, dynamic>.from(m['sales'] ?? {'smallSold': 0, 'largeSold': 0, 'smallTl': 0.0, 'largeTl': 0.0});
+      final l = (lSnap.data() ?? {});
 
+      // 2️⃣ İŞLEMLER
       if (isSmall) {
         final cups = (inv['smallCups'] ?? 0) as int;
         final liquid = (lv['liquid'] ?? 0) as int;
@@ -231,6 +236,7 @@ class SalesData {
         sales['largeTl'] = (sales['largeTl'] ?? 0.0) + priceTl;
       }
 
+      // 3️⃣ TÜM YAZMALAR EN SON
       tx.update(machineRef, {
         'inventory': inv,
         'levels': lv,
@@ -239,8 +245,6 @@ class SalesData {
         'sales': sales,
       });
 
-      final lSnap = await tx.get(logRef);
-      final l = (lSnap.data() ?? {});
       if (isSmall) {
         final lSales = {
           'smallSold': (l['smallSold'] ?? 0) + 1,
@@ -256,4 +260,6 @@ class SalesData {
       }
     });
   }
+
+
 }

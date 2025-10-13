@@ -5,7 +5,7 @@ import '../../core/i18n.dart';
 import '../../widgets/background_scaffold.dart';
 
 class PreparingPage extends StatefulWidget {
-  final String title;   // "Küçük" veya "Büyük"
+  final String title;
   final String volume;
   final String price;
   final int seconds;
@@ -64,20 +64,41 @@ class _PreparingPageState extends State<PreparingPage> {
   @override
   Widget build(BuildContext context) {
     return BackgroundScaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(trEn("Hazırlanıyor", "Preparing")),
         backgroundColor: Colors.transparent,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          trEn("Hazırlanıyor", "Preparing"),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(value: _progress),
-            const SizedBox(height: 20),
-            Text("${(_progress * 100).toStringAsFixed(0)}%"),
+            SizedBox(
+              height: 120,
+              width: 120,
+              child: CircularProgressIndicator(
+                backgroundColor: Colors.amber,
+                value: _progress,
+                strokeWidth: 22,
+              ),
+            ),
+            const SizedBox(height: 50),
+            Text("${(_progress * 100).toStringAsFixed(0)}%",
+                style:
+                    const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             if (_progress >= 1.0)
-              const Text("Afiyet olsun!", style: TextStyle(fontSize: 18)),
+              const Text("Afiyet olsun!",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
