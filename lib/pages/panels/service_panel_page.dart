@@ -39,11 +39,45 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
           final liquid = levels['liquid'] ?? 0;
           final isActive = status['isActive'] ?? false;
 
+          // Calculate percentages for warnings
+          final largeCupsPct = (largeCups / 120);
+          final smallCupsPct = (smallCups / 150);
+          final liquidPct = (liquid / 20000);
+          final lowThreshold = 0.2;
+          final hasWarning = largeCupsPct < lowThreshold || smallCupsPct < lowThreshold || liquidPct < lowThreshold;
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (hasWarning)
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade100,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.red.shade300, width: 1.5),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.warning, color: Colors.red, size: 28),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Uyarı: Stok veya içecek seviyesi kritik seviyede düşük!\n'
+                            '${largeCupsPct < lowThreshold ? "Büyük bardak sayısı düşük. " : ""}'
+                            '${smallCupsPct < lowThreshold ? "Küçük bardak sayısı düşük. " : ""}'
+                            '${liquidPct < lowThreshold ? "İçecek seviyesi düşük." : ""}',
+                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                 const Text(
                   'Cihaz Durumu',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -70,10 +104,22 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
                       ),
                       const SizedBox(height: 12),
                       ElevatedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Bakım bilgileri gönderilecek')),
-                          );
+                        onPressed: () async {
+                          // Add maintenance log to Firestore and show SnackBar
+                          try {
+                            final logRef = machineRef.collection('maintenance_logs').doc();
+                            await logRef.set({
+                              'timestamp': FieldValue.serverTimestamp(),
+                              'performedBy': null, // Optionally add user info here
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Bakım kaydı başarıyla eklendi.')),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Bakım kaydı eklenirken hata oluştu: $e')),
+                            );
+                          }
                         },
                         icon: const Icon(Icons.build_circle_outlined),
                         label: const Text('Bakım Tamamlandı'),
@@ -90,97 +136,133 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
   }
 
   Widget _buildStockControl(String label, int value, String field, int maxVal) {
+    final double pct = value / maxVal;
+    Color barColor;
+    if (pct < 0.2) {
+      barColor = Colors.red;
+    } else if (pct < 0.5) {
+      barColor = Colors.orange;
+    } else {
+      barColor = Colors.teal;
+    }
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: const TextStyle(fontSize: 18)),
-          const SizedBox(height: 6),
-          LinearProgressIndicator(
-            value: value / maxVal,
-            color: Colors.orange,
-            backgroundColor: Colors.grey[300],
-            minHeight: 10,
-          ),
-          const SizedBox(height: 4),
-          Text('$value adet', style: const TextStyle(fontSize: 14)),
-          const SizedBox(height: 6),
-          Row(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
-                icon: const Icon(Icons.remove_circle_outline),
-                onPressed: () => _updateStock(field, -5, maxVal),
+              Text(label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              LinearProgressIndicator(
+                value: pct.clamp(0.0, 1.0),
+                color: barColor,
+                backgroundColor: Colors.grey[300],
+                minHeight: 10,
               ),
-              IconButton(
-                icon: const Icon(Icons.add_circle_outline),
-                onPressed: () => _updateStock(field, 5, maxVal),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () => _setStockFull(field, maxVal),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                ),
-                child: field == 'largeCups' ? const Text('Tam (120)') : field == 'smallCups' ? const Text('Tam (150)') : const Text('Tam (80)'),
-              ),
-              const SizedBox(width: 10),
-              OutlinedButton(
-                onPressed: () => _enterManualValue(field, maxVal, false),
-                child: const Text('Değer Gir'),
+              const SizedBox(height: 6),
+              Text('$value adet', style: const TextStyle(fontSize: 14)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.remove_circle_outline),
+                    onPressed: () => _updateStock(field, -5, maxVal),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline),
+                    onPressed: () => _updateStock(field, 5, maxVal),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () => _setStockFull(field, maxVal),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: barColor,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: field == 'largeCups'
+                        ? const Text('Tam (120)')
+                        : field == 'smallCups'
+                            ? const Text('Tam (150)')
+                            : const Text('Tam (80)'),
+                  ),
+                  const SizedBox(width: 10),
+                  OutlinedButton(
+                    onPressed: () => _enterManualValue(field, maxVal, false),
+                    child: const Text('Değer Gir'),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildLiquidControl(String label, int value, int maxVal) {
+    final double pct = value / maxVal;
+    Color barColor;
+    if (pct < 0.2) {
+      barColor = Colors.red;
+    } else if (pct < 0.5) {
+      barColor = Colors.orange;
+    } else {
+      barColor = Colors.teal;
+    }
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: const TextStyle(fontSize: 18)),
-          const SizedBox(height: 6),
-          LinearProgressIndicator(
-            value: value / maxVal,
-            color: Colors.teal,
-            backgroundColor: Colors.grey[300],
-            minHeight: 10,
-          ),
-          const SizedBox(height: 4),
-          Text('$value ml', style: const TextStyle(fontSize: 14)),
-          const SizedBox(height: 6),
-          Row(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
-                icon: const Icon(Icons.remove_circle_outline),
-                onPressed: () => _updateLiquid(-250, maxVal),
+              Text(label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              LinearProgressIndicator(
+                value: pct.clamp(0.0, 1.0),
+                color: barColor,
+                backgroundColor: Colors.grey[300],
+                minHeight: 10,
               ),
-              IconButton(
-                icon: const Icon(Icons.add_circle_outline),
-                onPressed: () => _updateLiquid(250, maxVal),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () => _setLiquidFull(maxVal),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Tam (20000)'),
-              ),
-              const SizedBox(width: 10),
-              OutlinedButton(
-                onPressed: () => _enterManualValue('liquid', maxVal, true),
-                child: const Text('Değer Gir'),
+              const SizedBox(height: 6),
+              Text('$value ml', style: const TextStyle(fontSize: 14)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.remove_circle_outline),
+                    onPressed: () => _updateLiquid(-250, maxVal),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline),
+                    onPressed: () => _updateLiquid(250, maxVal),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () => _setLiquidFull(maxVal),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: barColor,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Tam (20000)'),
+                  ),
+                  const SizedBox(width: 10),
+                  OutlinedButton(
+                    onPressed: () => _enterManualValue('liquid', maxVal, true),
+                    child: const Text('Değer Gir'),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
