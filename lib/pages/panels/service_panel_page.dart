@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ServicePanelPage extends StatefulWidget {
   const ServicePanelPage({super.key});
@@ -105,15 +106,15 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
                       const SizedBox(height: 12),
                       ElevatedButton.icon(
                         onPressed: () async {
-                          // Add maintenance log to Firestore and show SnackBar
                           try {
+                            final email = FirebaseAuth.instance.currentUser?.email ?? 'unknown';
                             final logRef = machineRef.collection('maintenance_logs').doc();
                             await logRef.set({
                               'timestamp': FieldValue.serverTimestamp(),
-                              'performedBy': null, // Optionally add user info here
+                              'performedBy': email,
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Bakım kaydı başarıyla eklendi.')),
+                              SnackBar(content: Text('Bakım kaydı başarıyla eklendi ($email).')),
                             );
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(

@@ -9,25 +9,7 @@ class AdminPanelPage extends StatefulWidget {
 }
 
 class _AdminPanelPageState extends State<AdminPanelPage> {
-  int bigCupStock = 40;
-  int smallCupStock = 60;
-  int syrupLevel = 80;
-  int waterLevel = 90;
-
-  bool get _hasLowLevel {
-    return bigCupStock < 20 || smallCupStock < 20 || syrupLevel < 20 || waterLevel < 20;
-  }
-
-  Future<void> _logMaintenance() async {
-    await FirebaseFirestore.instance.collection('maintenance_logs').add({
-      'timestamp': Timestamp.now(),
-    });
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bakım kaydı başarıyla eklendi')),
-      );
-    }
-  }
+  final machineRef = FirebaseFirestore.instance.collection('machines').doc('M-0001');
 
   @override
   Widget build(BuildContext context) {
@@ -36,92 +18,186 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
         title: const Text('Admin Paneli'),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: machineRef.snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || !snapshot.data!.exists) {
+            return const Center(child: Text('Makine verisi bulunamadı.'));
+          }
+
+          final data = snapshot.data!.data() as Map<String, dynamic>;
+          final inventory = data['inventory'] ?? {};
+          final levels = data['levels'] ?? {};
+          final dailyProfit = data['daily_profit'] ?? {};
+          final refunds = data['refunds'] ?? {};
+          final sales = data['sales'] ?? {};
+          final status = data['status'] ?? {};
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Makine Bilgileri', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 16),
+                // Move editable sections to the top
+                _buildEditableSection('Stok (inventory)', inventory, 'inventory', {'largeCups': 120, 'smallCups': 150}),
+                _buildEditableSection('Seviye (levels)', levels, 'levels', {'liquid': 20000}),
+                const SizedBox(height: 16),
+                // GridView for read-only cards
+                SizedBox(
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisSpacing: 4,
+                    mainAxisSpacing: 4,
+                    childAspectRatio: 3,
+                    children: [
+                      _buildReadOnlyCard('Günlük Kar', {
+                        'Tarih': dailyProfit['current_day'] ?? '-',
+                        'Bugünkü Kar': '${dailyProfit['profit_today'] ?? 0} ₺',
+                      }),
+                      _buildReadOnlyCard('Satış Bilgileri', {
+                        'Büyük Satış': '${sales['largeSold'] ?? 0} (${sales['largeTl'] ?? 0} ₺)',
+                        'Küçük Satış': '${sales['smallSold'] ?? 0} (${sales['smallTl'] ?? 0} ₺)',
+                      }),
+                      _buildReadOnlyCard('İade Bilgileri', {
+                        'Toplam İade': '${refunds['total'] ?? 0}',
+                        'Miktar (ml)': '${refunds['amountMl'] ?? 0}',
+                        'Tutar (₺)': '${refunds['amountTl'] ?? 0}',
+                      }),
+                      _buildReadOnlyCard('Durum', {'Satış Aktif mi': (status['isActive'] ?? false) ? 'Evet' : 'Hayır'}),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Center(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.build_circle_outlined),
+                    label: const Text('Bakım Kaydı Ekle'),
+                    onPressed: () async {
+                      await machineRef.collection('maintenance_logs').add({
+                        'timestamp': FieldValue.serverTimestamp(),
+                        'performedBy': 'admin@system',
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Bakım kaydı başarıyla eklendi')),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildReadOnlyCard(String title, Map<String, dynamic> info) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      elevation: 3,
+      child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_hasLowLevel)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.red[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  '⚠️ Düşük Seviye Tespiti: Kontrol Edin',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            const Text(
-              'Stok Durumu',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            _buildStockCard('Büyük İçecek', bigCupStock, Colors.orange),
-            _buildStockCard('Küçük İçecek', smallCupStock, Colors.blue),
-            _buildStockCard('Şurup Seviyesi', syrupLevel, Colors.purple),
-            _buildStockCard('Su Seviyesi', waterLevel, Colors.teal),
-            const SizedBox(height: 24),
-            Center(
-              child: Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      // TODO: Firebase bağlantısı yapıldıktan sonra veriler Firestore’dan çekilecek.
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Veriler güncellenecek')),
-                      );
-                    },
-                    child: const Text('Verileri Güncelle'),
-                  ),
-                  const SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: _logMaintenance,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                    ),
-                    child: const Text('Bakım Tamamlandı'),
-                  ),
-                ],
-              ),
-            ),
+            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            ...info.entries.map((e) => Text('${e.key}: ${e.value}', style: const TextStyle(fontSize: 16))),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStockCard(String label, int value, Color color) {
-    Color progressColor = value < 20 ? Colors.red : color;
+  Widget _buildEditableSection(String title, Map<String, dynamic> data, String path, Map<String, int> limits) {
     return Card(
-      elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 3,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 12),
-            LinearProgressIndicator(
-              value: value / 100,
-              color: progressColor,
-              backgroundColor: Colors.grey[300],
-              minHeight: 12,
-            ),
+            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text('%$value', style: const TextStyle(fontSize: 14)),
+            ...data.entries.map((e) {
+              final key = e.key;
+              final value = e.value ?? 0;
+              final maxVal = limits[key] ?? 100;
+              final pct = (value / maxVal).clamp(0.0, 1.0);
+              Color barColor = pct < 0.2 ? Colors.red : (pct < 0.5 ? Colors.orange : Colors.teal);
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('$key: $value', style: const TextStyle(fontSize: 16)),
+                    const SizedBox(height: 4),
+                    LinearProgressIndicator(value: pct, color: barColor, backgroundColor: Colors.grey[300], minHeight: 10),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        IconButton(onPressed: () => _updateValue(path, key, value - 5, maxVal), icon: const Icon(Icons.remove_circle_outline)),
+                        IconButton(onPressed: () => _updateValue(path, key, value + 5, maxVal), icon: const Icon(Icons.add_circle_outline)),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () => _updateValue(path, key, maxVal, maxVal),
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
+                          child: Text('Tam ($maxVal)'),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton(onPressed: () => _enterManualValue(path, key, maxVal), child: const Text('Değer Gir')),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _updateValue(String path, String key, int newValue, int maxVal) async {
+    final updated = newValue.clamp(0, maxVal);
+    await machineRef.update({'$path.$key': updated});
+  }
+
+  Future<void> _enterManualValue(String path, String key, int maxVal) async {
+    final controller = TextEditingController();
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Değer Gir'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(hintText: 'Yeni değer girin'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
+          TextButton(
+            onPressed: () async {
+              final value = int.tryParse(controller.text.trim());
+              if (value == null || value < 0 || value > maxVal) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Değer 0 ile $maxVal arasında olmalı.')));
+                return;
+              }
+              await machineRef.update({'$path.$key': value});
+              Navigator.pop(context);
+            },
+            child: const Text('Kaydet'),
+          ),
+        ],
       ),
     );
   }
