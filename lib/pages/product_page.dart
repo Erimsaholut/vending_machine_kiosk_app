@@ -80,7 +80,7 @@ class ProductPage extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => const PaymentPage(
-                                    title: 'Küçük Boy',
+                                    title: 'smallCup',
                                     volume: '300ml',
                                     price: '30',
                                     prepSeconds: 3,
@@ -130,7 +130,7 @@ class ProductPage extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => const PaymentPage(
-                                    title: 'Büyük Boy',
+                                    title: 'largeCup',
                                     volume: '400ml',
                                     price: '45',
                                     prepSeconds: 5,

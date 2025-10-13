@@ -1,17 +1,16 @@
+import '../widgets/background_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../core/i18n.dart';
-import '../core/sales_data.dart';
-import 'preparing_page.dart';
-import 'refund_animation_page.dart';
 import '../pages/test_refund_page.dart';
-import '../widgets/background_scaffold.dart';
+import 'preparing_page.dart';
+import '../core/i18n.dart';
 
 class PaymentPage extends StatelessWidget {
   final String title;
   final String volume;
   final String price;
   final int prepSeconds;
+  final String drinkType;
 
   const PaymentPage({
     super.key,
@@ -19,7 +18,7 @@ class PaymentPage extends StatelessWidget {
     required this.volume,
     required this.price,
     required this.prepSeconds,
-  });
+  }) : drinkType = title;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +55,7 @@ class PaymentPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => PreparingPage(
-                        title: title,
+                        title: drinkType,
                         volume: volume,
                         price: price,
                         seconds: prepSeconds,
@@ -77,7 +76,14 @@ class PaymentPage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const TestRefundPage()),
+                    MaterialPageRoute(
+                      builder: (_) => TestRefundPage(
+                        title: drinkType,
+                        volume: volume,
+                        price: price,
+                        seconds: prepSeconds,
+                      ),
+                    ),
                   );
                 },
                 child: Text(
