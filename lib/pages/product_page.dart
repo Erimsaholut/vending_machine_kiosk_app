@@ -32,8 +32,8 @@ class ProductPage extends StatelessWidget {
         final int largeCups = (inv['largeCups'] ?? 0);
         final int liquid = (levels['liquid'] ?? 0);
 
-        final bool canSellSmall = smallCups > 0 && liquid >= 300;
-        final bool canSellLarge = largeCups > 0 && liquid >= 400;
+        final bool canSellSmall = smallCups > 3;
+        final bool canSellLarge = largeCups > 3;
 
         return BackgroundScaffold(
           extendBodyBehindAppBar: true,
