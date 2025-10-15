@@ -292,12 +292,16 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
       final current = levels['liquid'] ?? 0;
       final updated = (current + delta).clamp(0, maxVal);
       levels['liquid'] = updated;
+      levels['liquidBand'] = _bandForLiquid(updated, maxVal);
       tx.update(machineRef, {'levels': levels});
     });
   }
 
   Future<void> _setLiquidFull(int maxVal) async {
-    await machineRef.update({'levels.liquid': maxVal});
+    await machineRef.update({
+      'levels.liquid': maxVal,
+      'levels.liquidBand': _bandForLiquid(maxVal, maxVal),
+    });
   }
 
   Future<void> _toggleMachineStatus(bool newStatus) async {
@@ -330,7 +334,10 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
                 return;
               }
               if (isLiquid) {
-                await machineRef.update({'levels.liquid': value});
+                await machineRef.update({
+                  'levels.liquid': value,
+                  'levels.liquidBand': _bandForLiquid(value, maxVal),
+                });
               } else {
                 await machineRef.update({'inventory.$field': value});
               }
@@ -341,5 +348,16 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
         ],
       ),
     );
+  }
+
+  String _bandForLiquid(int value, int maxVal) {
+    final ratio = maxVal == 0 ? 0.0 : value / maxVal;
+    if (ratio < 0.2) {
+      return 'red';
+    } else if (ratio < 0.5) {
+      return 'orange';
+    } else {
+      return 'green';
+    }
   }
 }
