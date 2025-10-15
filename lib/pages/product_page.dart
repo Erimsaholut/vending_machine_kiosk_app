@@ -1,15 +1,17 @@
-import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../widgets/background_scaffold.dart';
+import 'package:flutter/material.dart';
 import '../core/i18n.dart';
 import 'payment_page.dart';
-import '../widgets/background_scaffold.dart';
 
 class ProductPage extends StatelessWidget {
   const ProductPage({super.key});
 
   Future<Map<String, dynamic>?> _fetchMachineData() async {
-    final snap = await FirebaseFirestore.instance.collection('machines').doc('M-0001').get();
+    final snap = await FirebaseFirestore.instance
+        .collection('machines')
+        .doc('M-0001')
+        .get();
     return snap.data();
   }
 
@@ -27,10 +29,8 @@ class ProductPage extends StatelessWidget {
 
         final machine = snapshot.data!;
         final inv = Map<String, dynamic>.from(machine['inventory'] ?? {});
-        final levels = Map<String, dynamic>.from(machine['levels'] ?? {});
         final int smallCups = (inv['smallCups'] ?? 0);
         final int largeCups = (inv['largeCups'] ?? 0);
-        final int liquid = (levels['liquid'] ?? 0);
 
         final bool canSellSmall = smallCups > 3;
         final bool canSellLarge = largeCups > 3;
@@ -83,38 +83,41 @@ class ProductPage extends StatelessWidget {
                                     title: 'smallCup',
                                     volume: '300ml',
                                     price: '30',
-                                    prepSeconds: 3,
+                                    prepSeconds: 10,
                                   ),
                                 ),
                               );
                             }
                           : null,
                       child: SizedBox(
-                        width: 180,
-                        height: 250,
+                        width: 405,
+                        height: 200,
                         child: ColorFiltered(
                           colorFilter: canSellSmall
-                              ? const ColorFilter.mode(Colors.transparent, BlendMode.multiply)
-                              : const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                              ? const ColorFilter.mode(
+                                  Colors.transparent, BlendMode.multiply)
+                              : const ColorFilter.mode(
+                                  Colors.grey, BlendMode.saturation),
                           child: Image.asset(
-                            'assets/buttons/product.png',
-                            fit: BoxFit.cover,
+                            'assets/buttons_new/small_tr.png',
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    trEn('Küçük Boy','Small'),
-                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
                   const Text(
-                    '300ml - 30₺',
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    '30₺',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold),
                   ),
                   if (!canSellSmall)
-                    const Text('Stokta yok', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                    const Text('Stokta yok',
+                        style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.red, fontWeight: FontWeight.bold)),
                 ],
               ),
               // büyük
@@ -133,38 +136,42 @@ class ProductPage extends StatelessWidget {
                                     title: 'largeCup',
                                     volume: '400ml',
                                     price: '45',
-                                    prepSeconds: 5,
+                                    prepSeconds: 15,
                                   ),
                                 ),
                               );
                             }
                           : null,
                       child: SizedBox(
-                        width: 220,
-                        height: 300,
+                        width: 380,
+                        height: 240,
                         child: ColorFiltered(
                           colorFilter: canSellLarge
-                              ? const ColorFilter.mode(Colors.transparent, BlendMode.multiply)
-                              : const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                              ? const ColorFilter.mode(
+                                  Colors.transparent, BlendMode.multiply)
+                              : const ColorFilter.mode(
+                                  Colors.grey, BlendMode.saturation),
                           child: Image.asset(
-                            'assets/buttons/product.png',
-                            fit: BoxFit.cover,
+                            'assets/buttons_new/large_tr.png',
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Text(
-                    trEn('Büyük Boy','Large'),
-                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
                   const Text(
-                    '400ml - 45₺',
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    '45₺',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold),
                   ),
                   if (!canSellLarge)
-                    const Text('Stokta yok', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                    const Text('Stokta yok',
+                        style: TextStyle(
+                          fontSize: 30,
+                            color: Colors.red, fontWeight: FontWeight.bold)),
                 ],
               ),
             ],

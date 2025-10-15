@@ -1,4 +1,3 @@
-import '../widgets/background_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../pages/test_refund_page.dart';
@@ -26,7 +25,7 @@ class PaymentPage extends StatelessWidget {
         ? trEn('Küçük Boy', 'Small Cup')
         : trEn('Büyük Boy', 'Large Cup');
 
-    return BackgroundScaffold(
+    return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text('${trEn('Ödeme', 'Payment')} – $displayName $volume $price'),
@@ -38,66 +37,68 @@ class PaymentPage extends StatelessWidget {
           systemNavigationBarColor: Colors.transparent,
         ),
       ),
-      child: SizedBox.expand(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.08,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/wallpapers/payment_tr.jpeg'),
+            fit: BoxFit.cover,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Image.asset(
-                'assets/buttons/payment.png',
-                fit: BoxFit.contain,
-                alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width * 0.5,
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(300, 65),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PreparingPage(
-                        title: drinkType,
-                        volume: volume,
-                        price: price,
-                        seconds: prepSeconds,
+        ),
+        child: SizedBox.expand(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.08,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(300, 65),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PreparingPage(
+                          title: drinkType,
+                          volume: volume,
+                          price: price,
+                          seconds: prepSeconds,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: Text(
-                  trEn('Ödeme Yapıldı', 'Payment Completed'),
-                  style: const TextStyle(fontSize: 26),
+                    );
+                  },
+                  child: Text(
+                    trEn('Ödeme Yapıldı', 'Payment Completed'),
+                    style: const TextStyle(fontSize: 26),
+                  ),
                 ),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  minimumSize: const Size(300, 65),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => TestRefundPage(
-                        title: drinkType,
-                        volume: volume,
-                        price: price,
-                        seconds: prepSeconds,
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    minimumSize: const Size(300, 65),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TestRefundPage(
+                          title: drinkType,
+                          volume: volume,
+                          price: price,
+                          seconds: prepSeconds,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: Text(
-                  trEn('İade Sayfası', 'Refund Page'),
-                  style: const TextStyle(fontSize: 26),
+                    );
+                  },
+                  child: Text(
+                    trEn('İade Sayfası', 'Refund Page'),
+                    style: const TextStyle(fontSize: 26),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

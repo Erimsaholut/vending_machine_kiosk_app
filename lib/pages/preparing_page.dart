@@ -98,12 +98,12 @@ class _PreparingPageState extends State<PreparingPage> with SingleTickerProvider
             FadeTransition(
               opacity: _opacityAnimation,
               child: Image.asset(
-                'assets/buttons/product.png',
-                height: 360,
+                'assets/buttons_new/product.png',
+                height: 324,
                 fit: BoxFit.contain,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 50),
             SizedBox(
               height: 120,
               width: 120,

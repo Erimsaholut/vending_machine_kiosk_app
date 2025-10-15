@@ -24,7 +24,7 @@ class BackgroundScaffold extends StatelessWidget {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/wallpapers/background2.jpg',
+              'assets/wallpapers/wallpaper_empty.jpeg',
               fit: BoxFit.cover,
             ),
           ),
