@@ -45,7 +45,7 @@ class ProductPage extends StatelessWidget {
               trEn('Ürün Seçimi', 'Product Selection'),
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 48,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -99,7 +99,9 @@ class ProductPage extends StatelessWidget {
                               : const ColorFilter.mode(
                                   Colors.grey, BlendMode.saturation),
                           child: Image.asset(
-                            'assets/buttons_new/small_tr.png',
+                            isTurkish
+                                ? 'assets/buttons_new/small_tr.png'
+                                : 'assets/buttons_new/small_en.png',
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -152,7 +154,9 @@ class ProductPage extends StatelessWidget {
                               : const ColorFilter.mode(
                                   Colors.grey, BlendMode.saturation),
                           child: Image.asset(
-                            'assets/buttons_new/large_tr.png',
+                            isTurkish
+                                ? 'assets/buttons_new/large_tr.png'
+                                : 'assets/buttons_new/large_en.png',
                             fit: BoxFit.contain,
                           ),
                         ),

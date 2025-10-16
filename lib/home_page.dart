@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:buzi_kiosk/widgets/admin_keypad_dialog.dart';
+import 'package:buzi_kiosk/pages/sales_closed_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:buzi_kiosk/pages/product_page.dart';
-import 'package:buzi_kiosk/pages/sales_closed_page.dart';
-import 'package:buzi_kiosk/widgets/admin_keypad_dialog.dart';
+import 'package:flutter/material.dart';
+import 'core/i18n.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -95,7 +96,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 left: screenWidth * 0.001,
                 child: SafeArea(
                   child: GestureDetector(
-                    onTap: () => debugPrint("Language change pressed"),
+                    onTap: () {
+                      toggleLanguage();
+                      setState(() {});
+                    },
                     child: Image.asset(
                       'assets/buttons_new/lang_change.png',
                       width: langButtonSize,
@@ -153,11 +157,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 left: (screenWidth - startButtonWidth) / 2,
                 child: GestureDetector(
                   onTap: _handleStartPressed,
+
                   child: Image.asset(
-                    'assets/buttons_new/start_tr.png',
+                    trEn('assets/buttons_new/start_tr.png', 'assets/buttons_new/start_en.png'),
                     width: startButtonWidth,
                     fit: BoxFit.contain,
                   ),
+
                 ),
               ),
             ],

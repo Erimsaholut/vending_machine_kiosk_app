@@ -28,7 +28,14 @@ class PaymentPage extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('${trEn('Ödeme', 'Payment')} – $displayName $volume $price'),
+        title: Text(
+          '${trEn('Ödeme', 'Payment')} – $displayName $volume $price',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
@@ -38,9 +45,13 @@ class PaymentPage extends StatelessWidget {
         ),
       ),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/wallpapers/payment_tr.jpeg'),
+            image: AssetImage(
+              isTurkish
+                  ? 'assets/wallpapers/payment_tr.jpeg'
+                  : 'assets/wallpapers/payment_en.png',
+            ),
             fit: BoxFit.cover,
           ),
         ),

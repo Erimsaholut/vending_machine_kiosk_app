@@ -17,16 +17,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return I18nRebuilder(
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Buzi Kiosk',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        home: const HomePage(), // artık buraya yönlendiriyor
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Buzi Kiosk',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
+      home: const HomePage(), // artık buraya yönlendiriyor
     );
   }
 }

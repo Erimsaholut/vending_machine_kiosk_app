@@ -78,19 +78,6 @@ class _PreparingPageState extends State<PreparingPage> with SingleTickerProvider
   Widget build(BuildContext context) {
     return BackgroundScaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        title: Text(
-          trEn("Hazırlanıyor", "Preparing"),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
