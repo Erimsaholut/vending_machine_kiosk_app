@@ -1,8 +1,7 @@
-import 'dart:async';
+import '../../widgets/background_scaffold.dart';
 import 'package:flutter/material.dart';
 import '../../core/sales_data.dart';
-import '../../core/i18n.dart';
-import '../../widgets/background_scaffold.dart';
+import 'dart:async';
 
 class PreparingPage extends StatefulWidget {
   final String title;

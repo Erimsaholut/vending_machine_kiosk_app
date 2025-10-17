@@ -40,7 +40,7 @@ class _RefundAnimationPageState extends State<RefundAnimationPage> {
             ? Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green, size: 64),
+                  const Icon(Icons.check_circle, color: Colors.green, size: 64),
                   const SizedBox(height: 20),
                   Text(
                     trEn("Ücret iadesi başarı ile yapıldı", "Refund completed successfully"),

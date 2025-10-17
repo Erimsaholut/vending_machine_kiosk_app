@@ -193,7 +193,6 @@ class SalesData {
   }) async {
     final isSmall = title == 'smallCup';
     lastSaleCupType = isSmall ? 'small' : 'large';
-    final vol = int.tryParse(volume.replaceAll(RegExp(r'[^0-9]'), '')) ?? (isSmall ? 300 : 400);
     final now = DateTime.now().toLocal();
     final day = DateFormat('yyyy-MM-dd').format(now);
     final machineRef = _db.collection('machines').doc(machineId);

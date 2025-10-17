@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:buzi_kiosk/pages/product_page.dart';
 import 'package:flutter/material.dart';
 import 'core/i18n.dart';
+import 'package:buzi_kiosk/pages/processing_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -27,6 +28,28 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _animation = Tween<double>(begin: 1.0, end: 1.08).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+    // Async processing status check after animation setup
+    _checkProcessingStatusAsync();
+  }
+  Future<void> _checkProcessingStatusAsync() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('machines')
+          .doc('M-0001')
+          .get();
+      final data = doc.data();
+      final processing = data?['processing'] as Map<String, dynamic>?;
+      if (processing?['isActive'] == true && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const ProcessingPage()),
+          );
+        });
+      }
+    } catch (e) {
+      debugPrint('Async processing kontrolü hatası: $e');
+    }
   }
 
   @override
@@ -157,13 +180,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 left: (screenWidth - startButtonWidth) / 2,
                 child: GestureDetector(
                   onTap: _handleStartPressed,
-
                   child: Image.asset(
                     trEn('assets/buttons_new/start_tr.png', 'assets/buttons_new/start_en.png'),
                     width: startButtonWidth,
                     fit: BoxFit.contain,
                   ),
-
                 ),
               ),
             ],
