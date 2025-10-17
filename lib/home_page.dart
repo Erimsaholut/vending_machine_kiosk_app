@@ -2,9 +2,9 @@ import 'package:buzi_kiosk/widgets/admin_keypad_dialog.dart';
 import 'package:buzi_kiosk/pages/sales_closed_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:buzi_kiosk/pages/product_page.dart';
+import 'package:buzi_kiosk/pages/processing_page.dart';
 import 'package:flutter/material.dart';
 import 'core/i18n.dart';
-import 'package:buzi_kiosk/pages/processing_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -68,17 +68,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       final data = doc.data();
       final isActive = data?['status']?['isActive'] ?? true;
 
+      debugPrint('Firestore isActive: $isActive');
+
       if (!mounted) return;
 
       if (!isActive) {
+        debugPrint('Makine kapalı, SalesClosedPage’e gidiliyor.');
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const SalesClosedPage()),
         );
-      } else {
+      } else if (isActive == true) {
+        debugPrint('Makine aktif, ProductPage’e gidiliyor.');
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const ProductPage()),
+        );
+      } else {
+        debugPrint('isActive null veya okunamadı, SalesClosedPage’e gidiliyor.');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const SalesClosedPage()),
         );
       }
     } catch (e) {
