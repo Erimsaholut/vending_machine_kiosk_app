@@ -2,6 +2,7 @@ import 'package:buzi_kiosk/pages/refund_animation_page.dart';
 import 'package:flutter/material.dart';
 import '../core/sales_data.dart';
 import '../core/error_codes.dart';
+import '../widgets/service_widgets/machine_service.dart'; // ✅ EKLENDİ
 
 class TestRefundPage extends StatelessWidget {
   final String title;
@@ -9,13 +10,15 @@ class TestRefundPage extends StatelessWidget {
   final String price;
   final int seconds;
 
-  const TestRefundPage({
+  TestRefundPage({ // ✅ const kaldırıldı
     super.key,
     required this.title,
     required this.volume,
     required this.price,
     required this.seconds,
   });
+
+  final _service = MachineService(machineId: 'M-0001');
 
   Future<void> _logRefundAuto(String code, BuildContext context, String msg) async {
     final cupType = title;
@@ -47,6 +50,9 @@ class TestRefundPage extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () async {
+                // ✅ Makineyi satışa kapat
+                await _service.toggleMachineStatus(true);
+
                 await _logRefundAuto(
                   RefundErrorCodes.overfreeze,
                   context,
@@ -62,6 +68,8 @@ class TestRefundPage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
+                await _service.toggleMachineStatus(true); // ✅ EKLENDİ
+
                 await _logRefundAuto(
                   RefundErrorCodes.cupDrop,
                   context,
@@ -77,6 +85,8 @@ class TestRefundPage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
+                await _service.toggleMachineStatus(true); // ✅ EKLENDİ
+
                 await _logRefundAuto(
                   RefundErrorCodes.other,
                   context,

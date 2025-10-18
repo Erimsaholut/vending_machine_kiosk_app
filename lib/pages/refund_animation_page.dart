@@ -34,7 +34,10 @@ class _RefundAnimationPageState extends State<RefundAnimationPage> {
   @override
   Widget build(BuildContext context) {
     return BackgroundScaffold(
-      appBar: AppBar(title: Text(trEn("İade", "Refund"))),
+      appBar: AppBar(
+        title: Text(trEn("İade", "Refund")),
+        backgroundColor: Colors.transparent,
+      ),
       child: Center(
         child: _refundComplete
             ? Column(
@@ -43,7 +46,8 @@ class _RefundAnimationPageState extends State<RefundAnimationPage> {
                   const Icon(Icons.check_circle, color: Colors.green, size: 64),
                   const SizedBox(height: 20),
                   Text(
-                    trEn("Ücret iadesi başarı ile yapıldı", "Refund completed successfully"),
+                    trEn("Ücret iadesi başarı ile yapıldı",
+                        "Refund completed successfully"),
                     style: const TextStyle(fontSize: 18),
                     textAlign: TextAlign.center,
                   ),
@@ -55,7 +59,8 @@ class _RefundAnimationPageState extends State<RefundAnimationPage> {
                   const CircularProgressIndicator(),
                   const SizedBox(height: 20),
                   Text(
-                    trEn("Ürün doldurulurken bir hata ile karşılaşıldı.\nÜcret iadesi yapılıyor...",
+                    trEn(
+                        "Ürün doldurulurken bir hata ile karşılaşıldı.\nÜcret iadesi yapılıyor...",
                         "An error occurred while preparing the product.\nProcessing refund..."),
                     style: const TextStyle(fontSize: 18),
                     textAlign: TextAlign.center,

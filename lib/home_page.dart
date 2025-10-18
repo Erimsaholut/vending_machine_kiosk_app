@@ -14,9 +14,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-
   late AnimationController _controller;
   late Animation<double> _animation;
+
   @override
   void initState() {
     super.initState();
@@ -28,28 +28,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _animation = Tween<double>(begin: 1.0, end: 1.08).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
-    // Async processing status check after animation setup
-    _checkProcessingStatusAsync();
-  }
-  Future<void> _checkProcessingStatusAsync() async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('machines')
-          .doc('M-0001')
-          .get();
-      final data = doc.data();
-      final processing = data?['processing'] as Map<String, dynamic>?;
-      if (processing?['isActive'] == true && mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const ProcessingPage()),
-          );
-        });
-      }
-    } catch (e) {
-      debugPrint('Async processing kontrolü hatası: $e');
-    }
+
   }
 
   @override
@@ -90,103 +69,122 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final logoWidth = screenWidth * 0.35;
+    final startButtonWidth = screenWidth * 0.16;
+    final bottomPadding = screenHeight * 0.05;
+
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final screenHeight = constraints.maxHeight;
-          final screenWidth = constraints.maxWidth;
-
-          final logoWidth = screenWidth * 0.35;
-          final startButtonWidth = screenWidth * 0.16;
-          final langButtonSize = screenWidth * 0.08;
-          final bottomPadding = screenHeight * 0.05;
-
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              // Arka plan
-              Image.asset(
-                'assets/wallpapers/wallpaper_empty.jpeg',
-                fit: BoxFit.cover,
-              ),
-
-              // Sol üstteki dil değiştirme butonu
-              Positioned(
-                top: screenHeight * -0.05,
-                left: screenWidth * 0.001,
-                child: SafeArea(
-                  child: GestureDetector(
-                    onTap: () {
-                      toggleLanguage();
-                      setState(() {});
-                    },
-                    child: Image.asset(
-                      'assets/buttons_new/lang_change.png',
-                      width: langButtonSize,
-                      height: langButtonSize,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(screenWidth * 0.18),
+        child: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          foregroundColor: Colors.white,
+          leadingWidth: screenWidth * 0.1,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: GestureDetector(
+              onTap: () {
+                toggleLanguage();
+                setState(() {});
+              },
+              child: Transform.scale(
+                scale: 1.8,
+                child: Image.asset(
+                  'assets/buttons_new/lang_change.png',
+                  fit: BoxFit.contain,
                 ),
               ),
-
-              // Sağ üstteki ayarlar butonu
-              Positioned(
-                top: -25,
-                right: 0,
-                child: SafeArea(
-                  child: GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => const AdminKeypadDialog(),
-                      );
-                    },
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        '⚙️',
-                        style: TextStyle(fontSize: 36),
+            ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12, top: 4),
+              child: GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => const AdminKeypadDialog(),
+                  );
+                },
+                child: const Text(
+                  '⚙️',
+                  style: TextStyle(fontSize: 36),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance.collection('machines').doc('M-0001').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final data = snapshot.data?.data() as Map<String, dynamic>?;
+          final processing = data?['processing'] as Map<String, dynamic>?;
+          if (processing?['isActive'] == true) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProcessingPage()),
+                );
+              }
+            });
+            return const SizedBox.shrink();
+          }
+          // If not active, show home body as before
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    'assets/wallpapers/wallpaper_empty.jpeg',
+                    fit: BoxFit.cover,
+                  ),
+                  // Ortadaki logo (breathing efekt)
+                  Center(
+                    child: AnimatedBuilder(
+                      animation: _animation,
+                      builder: (context, child) {
+                        return Transform.scale(
+                          scale: _animation.value,
+                          child: child,
+                        );
+                      },
+                      child: Image.asset(
+                        'assets/wallpapers/logo_final.png',
+                        width: logoWidth,
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
-                ),
-              ),
-
-              // Ortadaki logo (breathing efekt)
-              Center(
-                child: AnimatedBuilder(
-                  animation: _animation,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _animation.value,
-                      child: child,
-                    );
-                  },
-                  child: Image.asset(
-                    'assets/wallpapers/logo_final.png',
-                    width: logoWidth,
-                    fit: BoxFit.contain,
+                  // Alt ortadaki Başla butonu
+                  Positioned(
+                    bottom: bottomPadding,
+                    left: (screenWidth - startButtonWidth) / 2,
+                    child: GestureDetector(
+                      onTap: _handleStartPressed,
+                      child: Image.asset(
+                        trEn('assets/buttons_new/start_tr.png', 'assets/buttons_new/start_en.png'),
+                        width: startButtonWidth,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-
-              // Alt ortadaki Başla butonu
-              Positioned(
-                bottom: bottomPadding,
-                left: (screenWidth - startButtonWidth) / 2,
-                child: GestureDetector(
-                  onTap: _handleStartPressed,
-                  child: Image.asset(
-                    trEn('assets/buttons_new/start_tr.png', 'assets/buttons_new/start_en.png'),
-                    width: startButtonWidth,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           );
         },
       ),

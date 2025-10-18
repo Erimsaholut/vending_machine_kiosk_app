@@ -21,21 +21,9 @@ class PaymentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = title == 'smallCup'
-        ? trEn('Küçük Boy', 'Small Cup')
-        : trEn('Büyük Boy', 'Large Cup');
-
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(
-          '${trEn('Ödeme', 'Payment')} – $displayName $volume $price',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
@@ -49,8 +37,8 @@ class PaymentPage extends StatelessWidget {
           image: DecorationImage(
             image: AssetImage(
               isTurkish
-                  ? 'assets/wallpapers/payment_tr.jpeg'
-                  : 'assets/wallpapers/payment_en.png',
+                  ? 'assets/wallpapers/payment_tr.jpg'
+                  : 'assets/wallpapers/payment_en.jpg',
             ),
             fit: BoxFit.cover,
           ),

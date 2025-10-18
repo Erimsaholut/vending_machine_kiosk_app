@@ -84,11 +84,23 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
                   },
                 ),
                 const SizedBox(height: 24),
+
+
+
+
+
+
                 ElevatedButton.icon(
                   onPressed: () => _service.toggleMachineStatus(isActive),
                   icon: Icon(isActive ? Icons.pause : Icons.play_arrow),
                   label: Text(isActive ? 'Satışı Kapat' : 'Satışı Aç'),
                 ),
+
+
+
+
+
+
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
                   onPressed: () async {

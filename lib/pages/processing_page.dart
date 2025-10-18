@@ -15,21 +15,47 @@ class ProcessingPage extends StatefulWidget {
 
 class _ProcessingPageState extends State<ProcessingPage> {
   Timer? _timer;
+  StreamSubscription<DocumentSnapshot>? _listener;
   Duration _remaining = Duration.zero;
+  bool _navigated = false;
 
   @override
   void initState() {
     super.initState();
     _startCountdown();
+    _listenProcessingChanges();
+  }
+
+  void _listenProcessingChanges() {
+    _listener = FirebaseFirestore.instance
+        .collection('machines')
+        .doc('M-0001')
+        .snapshots()
+        .listen((snapshot) {
+      if (!snapshot.exists) return;
+      final data = snapshot.data() as Map<String, dynamic>?;
+      final processing = data?['processing'] as Map<String, dynamic>?;
+      final isActive = processing?['isActive'] == true;
+      if (!isActive && !_navigated && mounted) {
+        _navigated = true;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomePage()),
+        );
+      }
+    });
   }
 
   Future<void> _startCountdown() async {
-    final docRef = FirebaseFirestore.instance.collection('machines').doc('M-0001');
+    final docRef =
+    FirebaseFirestore.instance.collection('machines').doc('M-0001');
     final docSnapshot = await docRef.get();
     if (!docSnapshot.exists) return;
 
     final data = docSnapshot.data();
-    if (data == null || !data.containsKey('processing') || !(data['processing'] is Map)) return;
+    if (data == null ||
+        !data.containsKey('processing') ||
+        !(data['processing'] is Map)) return;
 
     final processing = data['processing'] as Map<String, dynamic>;
     if (!processing.containsKey('until')) return;
@@ -48,26 +74,19 @@ class _ProcessingPageState extends State<ProcessingPage> {
     final diff = until.difference(now);
     if (diff.isNegative || diff == Duration.zero) {
       _timer?.cancel();
-      // Firebase'de processing'i false yap
       FirebaseFirestore.instance
           .collection('machines')
           .doc('M-0001')
           .update({'processing.isActive': false});
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomePage()),
-        );
-      }
     } else {
-      setState(() {
-        _remaining = diff;
-      });
+      setState(() => _remaining = diff);
     }
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _listener?.cancel();
     super.dispose();
   }
 
@@ -80,7 +99,8 @@ class _ProcessingPageState extends State<ProcessingPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight= MediaQuery.of(context).size.height;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
@@ -98,7 +118,7 @@ class _ProcessingPageState extends State<ProcessingPage> {
                 setState(() {});
               },
               child: Transform.scale(
-                scale: 2, // Görseli %90 büyüt
+                scale: 2,
                 child: Image.asset(
                   'assets/buttons_new/lang_change.png',
                   fit: BoxFit.contain,
@@ -136,7 +156,6 @@ class _ProcessingPageState extends State<ProcessingPage> {
               fit: BoxFit.cover,
             ),
           ),
-          // timer circle
           Positioned(
             left: screenWidth * 0.4,
             top: screenHeight * 0.335,
@@ -167,7 +186,7 @@ class _ProcessingPageState extends State<ProcessingPage> {
             ),
           ),
         ],
-      )
+      ),
     );
   }
 }

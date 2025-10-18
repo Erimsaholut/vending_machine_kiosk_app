@@ -127,7 +127,7 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
           children: [
             Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            ...data.entries.map((e) {
+            ...data.entries.where((e) => e.value is num).map((e) {
               final key = e.key;
               final value = e.value ?? 0;
               final maxVal = limits[key] ?? 100;
