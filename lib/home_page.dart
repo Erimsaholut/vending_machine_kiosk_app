@@ -68,27 +68,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       final data = doc.data();
       final isActive = data?['status']?['isActive'] ?? true;
 
-      debugPrint('Firestore isActive: $isActive');
-
       if (!mounted) return;
 
       if (!isActive) {
-        debugPrint('Makine kapalı, SalesClosedPage’e gidiliyor.');
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const SalesClosedPage()),
         );
-      } else if (isActive == true) {
-        debugPrint('Makine aktif, ProductPage’e gidiliyor.');
+      } else {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const ProductPage()),
-        );
-      } else {
-        debugPrint('isActive null veya okunamadı, SalesClosedPage’e gidiliyor.');
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const SalesClosedPage()),
         );
       }
     } catch (e) {
@@ -100,7 +90,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

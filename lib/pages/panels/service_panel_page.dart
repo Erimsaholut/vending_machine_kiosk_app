@@ -71,10 +71,13 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
                   value: levels['liquid'] ?? 0,
                   maxVal: 20000,
                   onChange: (newValue, duration) async {
-                    final until = Timestamp.fromDate(DateTime.now().add(Duration(minutes: duration)));
+                    final until = Timestamp.fromDate(
+                      DateTime.now().add(Duration(minutes: duration)),
+                    );
                     await _service.machineRef.update({
                       'levels.liquid': newValue,
-                      'levels.liquidBand': _service.bandForLiquid(newValue, 20000),
+                      'levels.liquidBand':
+                      _service.bandForLiquid(newValue, 20000),
                       'processing.isActive': true,
                       'processing.until': until,
                     });
@@ -88,7 +91,13 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
-                  onPressed: () => _service.finishMaintenance(context),
+                  onPressed: () async {
+                    final confirm = await showExitConfirmation(context);
+                    if (confirm == true) {
+                      await _service.finishMaintenance(context);
+                      if (context.mounted) Navigator.pop(context);
+                    }
+                  },
                   icon: const Icon(Icons.build_circle_outlined),
                   label: const Text('Bakım Tamamlandı'),
                 ),
