@@ -1,7 +1,8 @@
-import '../../widgets/background_scaffold.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/sales_data.dart';
-import 'dart:async';
+import '../../widgets/background_scaffold.dart';
+import '../home_page.dart';
 
 class PreparingPage extends StatefulWidget {
   final String title;
@@ -21,7 +22,8 @@ class PreparingPage extends StatefulWidget {
   State<PreparingPage> createState() => _PreparingPageState();
 }
 
-class _PreparingPageState extends State<PreparingPage> with SingleTickerProviderStateMixin {
+class _PreparingPageState extends State<PreparingPage>
+    with SingleTickerProviderStateMixin {
   Timer? _timer;
   double _progress = 0;
   late final int _totalMs;
@@ -52,16 +54,30 @@ class _PreparingPageState extends State<PreparingPage> with SingleTickerProvider
 
       if (_elapsedMs >= _totalMs) {
         _timer?.cancel();
-        // Satışı kaydet
-        await SalesData.instance.sellDrink(
-          title: widget.title,
-          volume: widget.volume,
-          priceTl: double.tryParse(widget.price) ?? 0.0,
-        );
 
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) Navigator.popUntil(context, (r) => r.isFirst);
-        });
+        // Satışı kaydet (hata olsa bile uygulama çökmemeli)
+        try {
+          await SalesData.instance.sellDrink(
+            title: widget.title,
+            volume: widget.volume,
+            priceTl: double.tryParse(widget.price) ?? 0.0,
+          );
+        } catch (e) {
+          debugPrint('SalesData error: $e');
+        }
+
+        if (!mounted) return;
+
+        // 2 saniye bekle, sonra ana menüye dön
+        await Future.delayed(const Duration(seconds: 2));
+
+        if (!mounted) return;
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+              (route) => false, // tüm sayfaları kaldırır
+        );
       }
     });
   }
@@ -96,18 +112,23 @@ class _PreparingPageState extends State<PreparingPage> with SingleTickerProvider
               child: CircularProgressIndicator(
                 value: _progress,
                 strokeWidth: 22,
-                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF026B55)),
+                valueColor:
+                const AlwaysStoppedAnimation<Color>(Color(0xFF026B55)),
                 backgroundColor: const Color(0xFF4EF2C0),
               ),
             ),
             const SizedBox(height: 50),
-            Text("${(_progress * 100).toStringAsFixed(0)}%",
-                style:
-                    const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+            Text(
+              "${(_progress * 100).toStringAsFixed(0)}%",
+              style:
+              const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 10),
             if (_progress >= 1.0)
-              const Text("Afiyet olsun!",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const Text(
+                "Afiyet olsun!",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
           ],
         ),
       ),
