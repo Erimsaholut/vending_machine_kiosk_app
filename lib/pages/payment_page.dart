@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../pages/test_refund_page.dart';
+// import '../pages/test_refund_page.dart'; // test butonunu istersen debug'ta kullanırsın
 import 'preparing_page.dart';
 import '../core/i18n.dart';
 
@@ -51,12 +51,13 @@ class PaymentPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                // PRODUCTION: Ödeme başarıyla tamamlandığında PREPARING'e geç
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(300, 65),
                   ),
-                  onPressed: () {
-                    Navigator.push(
+                  onPressed: () async {
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (_) => PreparingPage(
@@ -73,29 +74,28 @@ class PaymentPage extends StatelessWidget {
                     style: const TextStyle(fontSize: 26),
                   ),
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    minimumSize: const Size(300, 65),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TestRefundPage(
-                          title: drinkType,
-                          volume: volume,
-                          price: price,
-                          seconds: prepSeconds,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    trEn('İade Sayfası', 'Refund Page'),
-                    style: const TextStyle(fontSize: 26),
-                  ),
-                ),
+
+                // (Opsiyonel) Test butonu: prod’da gizlemek için kDebugMode ile sarmalayabilirsiniz.
+                // ElevatedButton(
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: Colors.red,
+                //     minimumSize: const Size(300, 65),
+                //   ),
+                //   onPressed: () {
+                //     Navigator.push(context, MaterialPageRoute(
+                //       builder: (_) => PreparingPage(
+                //         title: drinkType,
+                //         volume: volume,
+                //         price: price,
+                //         seconds: prepSeconds,
+                //       ),
+                //     ));
+                //   },
+                //   child: Text(
+                //     trEn('İade/Test', 'Refund/Test'),
+                //     style: const TextStyle(fontSize: 26),
+                //   ),
+                // ),
               ],
             ),
           ),
