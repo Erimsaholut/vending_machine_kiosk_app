@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/i18n.dart';
 import '../widgets/background_scaffold.dart';
+import 'sales_closed_page.dart';
 
 class RefundAnimationPage extends StatefulWidget {
   const RefundAnimationPage({super.key});
@@ -24,8 +25,10 @@ class _RefundAnimationPageState extends State<RefundAnimationPage> {
         });
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
-            Navigator.popUntil(context, (route) => route.isFirst);
-          }
+            Navigator.of(context).pushAndRemoveUntil(
+  MaterialPageRoute(builder: (_) => const SalesClosedPage()),
+  (route) => false,
+);}
         });
       }
     });

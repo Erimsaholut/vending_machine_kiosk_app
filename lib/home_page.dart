@@ -5,6 +5,7 @@ import 'package:buzi_kiosk/pages/product_page.dart';
 import 'package:buzi_kiosk/pages/processing_page.dart';
 import 'package:flutter/material.dart';
 import 'core/i18n.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,6 +29,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _animation = Tween<double>(begin: 1.0, end: 1.08).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+
+    WakelockPlus.enable();
 
   }
 
@@ -75,118 +78,121 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    final logoWidth = screenWidth * 0.35;
-    final startButtonWidth = screenWidth * 0.16;
+    final logoWidth = screenWidth * 0.45;
+    final startButtonWidth = screenWidth * 0.20;
     final bottomPadding = screenHeight * 0.05;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(screenWidth * 0.18),
-        child: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          foregroundColor: Colors.white,
-          leadingWidth: screenWidth * 0.1,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: GestureDetector(
-              onTap: () {
-                toggleLanguage();
-                setState(() {});
-              },
-              child: Transform.scale(
-                scale: 1.8,
-                child: Image.asset(
-                  'assets/buttons_new/lang_change.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 12, top: 4),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(screenWidth * 0.18),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            foregroundColor: Colors.white,
+            leadingWidth: screenWidth * 0.1,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 8),
               child: GestureDetector(
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => const AdminKeypadDialog(),
-                  );
+                  toggleLanguage();
+                  setState(() {});
                 },
-                child: const Text(
-                  '⚙️',
-                  style: TextStyle(fontSize: 36),
+                child: Transform.scale(
+                  scale: 1.8,
+                  child: Image.asset(
+                    'assets/buttons_new/lang_change.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
-          ],
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 12, top: 4),
+                child: GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => const AdminKeypadDialog(),
+                    );
+                  },
+                  child: const Text(
+                    '⚙️',
+                    style: TextStyle(fontSize: 36),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('machines').doc('M-0001').snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final data = snapshot.data?.data() as Map<String, dynamic>?;
-          final processing = data?['processing'] as Map<String, dynamic>?;
-          if (processing?['isActive'] == true) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ProcessingPage()),
+        body: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance.collection('machines').doc('M-0001').snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final data = snapshot.data?.data() as Map<String, dynamic>?;
+            final processing = data?['processing'] as Map<String, dynamic>?;
+            if (processing?['isActive'] == true) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProcessingPage()),
+                  );
+                }
+              });
+              return const SizedBox.shrink();
+            }
+            // If not active, show home body as before
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.asset(
+                      'assets/wallpapers/wallpaper_empty.jpeg',
+                      fit: BoxFit.cover,
+                    ),
+                    // Ortadaki logo (breathing efekt)
+                    Center(
+                      child: AnimatedBuilder(
+                        animation: _animation,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: _animation.value,
+                            child: child,
+                          );
+                        },
+                        child: Image.asset(
+                          'assets/wallpapers/logo_final.png',
+                          width: logoWidth,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    // Alt ortadaki Başla butonu
+                    Positioned(
+                      bottom: bottomPadding,
+                      left: (screenWidth - startButtonWidth) / 2,
+                      child: GestureDetector(
+                        onTap: _handleStartPressed,
+                        child: Image.asset(
+                          trEn('assets/buttons_new/start_tr.png', 'assets/buttons_new/start_en.png'),
+                          width: startButtonWidth,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                  ],
                 );
-              }
-            });
-            return const SizedBox.shrink();
-          }
-          // If not active, show home body as before
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              return Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(
-                    'assets/wallpapers/wallpaper_empty.jpeg',
-                    fit: BoxFit.cover,
-                  ),
-                  // Ortadaki logo (breathing efekt)
-                  Center(
-                    child: AnimatedBuilder(
-                      animation: _animation,
-                      builder: (context, child) {
-                        return Transform.scale(
-                          scale: _animation.value,
-                          child: child,
-                        );
-                      },
-                      child: Image.asset(
-                        'assets/wallpapers/logo_final.png',
-                        width: logoWidth,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                  // Alt ortadaki Başla butonu
-                  Positioned(
-                    bottom: bottomPadding,
-                    left: (screenWidth - startButtonWidth) / 2,
-                    child: GestureDetector(
-                      onTap: _handleStartPressed,
-                      child: Image.asset(
-                        trEn('assets/buttons_new/start_tr.png', 'assets/buttons_new/start_en.png'),
-                        width: startButtonWidth,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-        },
+              },
+            );
+          },
+        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:buzi_kiosk/pages/sales_closed_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
@@ -18,12 +19,14 @@ class _ProcessingPageState extends State<ProcessingPage> {
   StreamSubscription<DocumentSnapshot>? _listener;
   Duration _remaining = Duration.zero;
   bool _navigated = false;
+  bool _adminDialogOpen = false;
 
   @override
   void initState() {
     super.initState();
     _startCountdown();
     _listenProcessingChanges();
+    _listenStatusChanges();
   }
 
   void _listenProcessingChanges() {
@@ -32,8 +35,9 @@ class _ProcessingPageState extends State<ProcessingPage> {
         .doc('M-0001')
         .snapshots()
         .listen((snapshot) {
+      if (_adminDialogOpen) return;
       if (!snapshot.exists) return;
-      final data = snapshot.data() as Map<String, dynamic>?;
+      final data = snapshot.data();
       final processing = data?['processing'] as Map<String, dynamic>?;
       final isActive = processing?['isActive'] == true;
       if (!isActive && !_navigated && mounted) {
@@ -46,16 +50,37 @@ class _ProcessingPageState extends State<ProcessingPage> {
     });
   }
 
+  void _listenStatusChanges() {
+    FirebaseFirestore.instance
+        .collection('machines')
+        .doc('M-0001')
+        .snapshots()
+        .listen((snapshot) {
+      if (_adminDialogOpen) return;
+      final data = snapshot.data();
+      final isActive = data?['status']?['isActive'] ?? true;
+      if (!isActive && mounted && !_navigated) {
+        _navigated = true;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const SalesClosedPage()),
+        );
+      }
+    });
+  }
+
   Future<void> _startCountdown() async {
     final docRef =
-    FirebaseFirestore.instance.collection('machines').doc('M-0001');
+        FirebaseFirestore.instance.collection('machines').doc('M-0001');
     final docSnapshot = await docRef.get();
     if (!docSnapshot.exists) return;
 
     final data = docSnapshot.data();
     if (data == null ||
         !data.containsKey('processing') ||
-        !(data['processing'] is Map)) return;
+        data['processing'] is! Map) {
+      return;
+    }
 
     final processing = data['processing'] as Map<String, dynamic>;
     if (!processing.containsKey('until')) return;
@@ -131,10 +156,16 @@ class _ProcessingPageState extends State<ProcessingPage> {
               padding: const EdgeInsets.only(right: 12, top: 4),
               child: GestureDetector(
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => const AdminKeypadDialog(),
-                  );
+                  setState(() => _adminDialogOpen = true);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (_) => const AdminKeypadDialog(),
+                    ).then((_) {
+                      if (mounted) setState(() => _adminDialogOpen = false);
+                    });
+                  });
                 },
                 child: const Text(
                   '⚙️',
