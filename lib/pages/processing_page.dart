@@ -71,7 +71,7 @@ class _ProcessingPageState extends State<ProcessingPage> {
 
   Future<void> _startCountdown() async {
     final docRef =
-    FirebaseFirestore.instance.collection('machines').doc('M-0001');
+        FirebaseFirestore.instance.collection('machines').doc('M-0001');
     final docSnapshot = await docRef.get();
     if (!docSnapshot.exists) return;
 
@@ -156,13 +156,15 @@ class _ProcessingPageState extends State<ProcessingPage> {
               padding: const EdgeInsets.only(right: 12, top: 4),
               child: GestureDetector(
                 onTap: () {
-                  _adminDialogOpen = true;
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (_) => const AdminKeypadDialog(),
-                  ).then((_) {
-                    _adminDialogOpen = false;
+                  setState(() => _adminDialogOpen = true);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (_) => const AdminKeypadDialog(),
+                    ).then((_) {
+                      if (mounted) setState(() => _adminDialogOpen = false);
+                    });
                   });
                 },
                 child: const Text(

@@ -55,7 +55,7 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
                   label: 'Büyük Bardak Sayısı',
                   value: inventory['largeCups'] ?? 0,
                   field: 'largeCups',
-                  maxVal: 120,
+                  maxVal: 150,
                   onUpdate: _service.updateStock,
                   onFull: _service.setStockFull,
                 ),
@@ -63,13 +63,13 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
                   label: 'Küçük Bardak Sayısı',
                   value: inventory['smallCups'] ?? 0,
                   field: 'smallCups',
-                  maxVal: 150,
+                  maxVal: 160,
                   onUpdate: _service.updateStock,
                   onFull: _service.setStockFull,
                 ),
                 LiquidControlCard(
                   value: levels['liquid'] ?? 0,
-                  maxVal: 20000,
+                  maxVal: 80000,
                   onChange: (newValue, duration) async {
                     final until = Timestamp.fromDate(
                       DateTime.now().add(Duration(minutes: duration)),
@@ -77,7 +77,7 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
                     await _service.machineRef.update({
                       'levels.liquid': newValue,
                       'levels.liquidBand':
-                      _service.bandForLiquid(newValue, 20000),
+                      _service.bandForLiquid(newValue, 80000),
                       'processing.isActive': true,
                       'processing.until': until,
                     });

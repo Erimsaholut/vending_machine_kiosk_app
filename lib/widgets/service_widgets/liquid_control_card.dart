@@ -90,11 +90,11 @@ class LiquidControlCard extends StatelessWidget {
                                     TextButton(
                                       onPressed: () {
                                         setState(() {
-                                          controller.text = '20000';
-                                          inputValue = 20000;
+                                          controller.text = '80000';
+                                          inputValue = 80000;
                                         });
                                       },
-                                      child: const Text('Tamamla (20000)'),
+                                      child: const Text('Tamamla (80000)'),
                                     ),
                                   ],
                                 ),
@@ -110,9 +110,9 @@ class LiquidControlCard extends StatelessWidget {
                               ElevatedButton(
                                 onPressed: () {
                                   final val = int.tryParse(controller.text);
-                                  if (val == null || val < 0 || val > 20000) {
+                                  if (val == null || val < 0 || val > 80000) {
                                     setState(() {
-                                      errorText = '0 ile 20.000 arasında bir değer girin';
+                                      errorText = '0 ile 80.000 arasında bir değer girin';
                                     });
                                     return;
                                   }

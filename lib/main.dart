@@ -5,6 +5,9 @@ import 'package:flutter/services.dart';
 import 'firebase_options.dart';
 import 'home_page.dart';
 
+// 👇 BUNU EKLE
+import 'core/inactivity_watcher.dart';
+
 Future<void> _ensureAuth() async {
   final auth = FirebaseAuth.instance;
   if (auth.currentUser == null) {
@@ -14,6 +17,10 @@ Future<void> _ensureAuth() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -29,11 +36,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      navigatorObservers: [routeObserver],
       title: 'Buzi Kiosk',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      routes: {
+        '/home': (context) => const HomePage(),
+      },
       home: const HomePage(),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../core/inactivity_watcher.dart';
 
 // import '../pages/test_refund_page.dart'; // test butonunu istersen debug'ta kullanırsın
 import '../core/app_colors.dart';
@@ -23,83 +24,93 @@ class PaymentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: AppColors.bzPrimaryLight,
-        elevation: 0,
-        foregroundColor: Colors.white,
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          systemNavigationBarColor: Colors.transparent,
-        ),
-      ),
-      body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage(
-                isTurkish
-                    ? 'assets/wallpapers/payment_tr.jpg'
-                    : 'assets/wallpapers/payment_en.jpg',
-              ),
-              fit: BoxFit.cover,
-            ),
+    return InactivityWrapper(
+      timeout: TimeoutDurations.long,
+      onTimeout: () {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/home',
+              (route) => false,
+        );
+      },
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: AppColors.bzPrimaryLight,
+          elevation: 0,
+          foregroundColor: Colors.white,
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            systemNavigationBarColor: Colors.transparent,
           ),
-          child: SizedBox.expand(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * 0.08,
+        ),
+        body: SafeArea(
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                  isTurkish
+                      ? 'assets/wallpapers/payment_tr.jpg'
+                      : 'assets/wallpapers/payment_en.jpg',
+                ),
+                fit: BoxFit.cover,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // PRODUCTION: Ödeme başarıyla tamamlandığında PREPARING'e geç
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(300, 65),
-                    ),
-                    onPressed: () async {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PreparingPage(
-                            title: drinkType,
-                            volume: volume,
-                            price: price,
-                            seconds: prepSeconds,
+            ),
+            child: SizedBox.expand(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.08,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // PRODUCTION: Ödeme başarıyla tamamlandığında PREPARING'e geç
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(300, 65),
+                      ),
+                      onPressed: () async {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PreparingPage(
+                              title: drinkType,
+                              volume: volume,
+                              price: price,
+                              seconds: prepSeconds,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      trEn('Ödeme Yapıldı', 'Payment Completed'),
-                      style: const TextStyle(fontSize: 26),
+                        );
+                      },
+                      child: Text(
+                        trEn('Ödeme Yapıldı', 'Payment Completed'),
+                        style: const TextStyle(fontSize: 26),
+                      ),
                     ),
-                  ),
 
-                  // (Opsiyonel) Test butonu: prod’da gizlemek için kDebugMode ile sarmalayabilirsiniz.
-                  // ElevatedButton(
-                  //   style: ElevatedButton.styleFrom(
-                  //     backgroundColor: Colors.red,
-                  //     minimumSize: const Size(300, 65),
-                  //   ),
-                  //   onPressed: () {
-                  //     Navigator.push(context, MaterialPageRoute(
-                  //       builder: (_) => PreparingPage(
-                  //         title: drinkType,
-                  //         volume: volume,
-                  //         price: price,
-                  //         seconds: prepSeconds,
-                  //       ),
-                  //     ));
-                  //   },
-                  //   child: Text(
-                  //     trEn('İade/Test', 'Refund/Test'),
-                  //     style: const TextStyle(fontSize: 26),
-                  //   ),
-                  // ),
-                ],
+                    // (Opsiyonel) Test butonu: prod’da gizlemek için kDebugMode ile sarmalayabilirsiniz.
+                    // ElevatedButton(
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: Colors.red,
+                    //     minimumSize: const Size(300, 65),
+                    //   ),
+                    //   onPressed: () {
+                    //     Navigator.push(context, MaterialPageRoute(
+                    //       builder: (_) => PreparingPage(
+                    //         title: drinkType,
+                    //         volume: volume,
+                    //         price: price,
+                    //         seconds: prepSeconds,
+                    //       ),
+                    //     ));
+                    //   },
+                    //   child: Text(
+                    //     trEn('İade/Test', 'Refund/Test'),
+                    //     style: const TextStyle(fontSize: 26),
+                    //   ),
+                    // ),
+                  ],
+                ),
               ),
             ),
           ),

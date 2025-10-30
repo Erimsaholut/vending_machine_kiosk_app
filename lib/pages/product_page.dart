@@ -3,6 +3,7 @@ import '../widgets/background_scaffold.dart';
 import 'package:flutter/material.dart';
 import '../core/i18n.dart';
 import 'payment_page.dart';
+import '../core/inactivity_watcher.dart';
 
 class ProductPage extends StatelessWidget {
   const ProductPage({super.key});
@@ -35,150 +36,158 @@ class ProductPage extends StatelessWidget {
         final bool canSellSmall = smallCups > 3;
         final bool canSellLarge = largeCups > 3;
 
-        return BackgroundScaffold(
-          extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            surfaceTintColor: Colors.transparent,
-            title: Text(
-              trEn('Ürün Seçimi', 'Product Selection'),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
+        return InactivityWrapper(
+          timeout: TimeoutDurations.short,
+          onTimeout: () {
+            if (context.mounted) {
+              Navigator.pushReplacementNamed(context, '/home');
+            }
+          },
+          child: BackgroundScaffold(
+            extendBodyBehindAppBar: true,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              surfaceTintColor: Colors.transparent,
+              title: Text(
+                trEn('Ürün Seçimi', 'Product Selection'),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            centerTitle: true,
-            iconTheme: const IconThemeData(color: Colors.white),
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.transparent,
-                  ],
+              centerTitle: true,
+              iconTheme: const IconThemeData(color: Colors.white),
+              flexibleSpace: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.transparent,
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // küçük
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Opacity(
-                    opacity: canSellSmall ? 1.0 : 0.4,
-                    child: InkWell(
-                      onTap: canSellSmall
-                          ? () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const PaymentPage(
-                                    title: 'smallCup',
-                                    volume: '300ml',
-                                    price: '30',
-                                    prepSeconds: 10,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // küçük
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Opacity(
+                      opacity: canSellSmall ? 1.0 : 0.4,
+                      child: InkWell(
+                        onTap: canSellSmall
+                            ? () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const PaymentPage(
+                                      title: 'smallCup',
+                                      volume: '300ml',
+                                      price: '30',
+                                      prepSeconds: 10,
+                                    ),
                                   ),
-                                ),
-                              );
-                            }
-                          : null,
-                      child: SizedBox(
-                        width: 405,
-                        height: 200,
-                        child: ColorFiltered(
-                          colorFilter: canSellSmall
-                              ? const ColorFilter.mode(
-                                  Colors.transparent, BlendMode.multiply)
-                              : const ColorFilter.mode(
-                                  Colors.grey, BlendMode.saturation),
-                          child: Image.asset(
-                            isTurkish
-                                ? 'assets/buttons_new/small_tr.png'
-                                : 'assets/buttons_new/small_en.png',
-                            fit: BoxFit.contain,
+                                );
+                              }
+                            : null,
+                        child: SizedBox(
+                          width: 405,
+                          height: 200,
+                          child: ColorFiltered(
+                            colorFilter: canSellSmall
+                                ? const ColorFilter.mode(
+                                    Colors.transparent, BlendMode.multiply)
+                                : const ColorFilter.mode(
+                                    Colors.grey, BlendMode.saturation),
+                            child: Image.asset(
+                              isTurkish
+                                  ? 'assets/buttons_new/small_tr.png'
+                                  : 'assets/buttons_new/small_en.png',
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const Text(
-                    '30₺',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  if (!canSellSmall)
-                    const Text('Stokta yok',
-                        style: TextStyle(
+                    const Text(
+                      '30₺',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    if (!canSellSmall)
+                      const Text('Stokta yok',
+                          style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.red, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                // büyük
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Opacity(
+                      opacity: canSellLarge ? 1.0 : 0.4,
+                      child: InkWell(
+                        onTap: canSellLarge
+                            ? () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const PaymentPage(
+                                      title: 'largeCup',
+                                      volume: '400ml',
+                                      price: '45',
+                                      prepSeconds: 15,
+                                    ),
+                                  ),
+                                );
+                              }
+                            : null,
+                        child: SizedBox(
+                          width: 380,
+                          height: 240,
+                          child: ColorFiltered(
+                            colorFilter: canSellLarge
+                                ? const ColorFilter.mode(
+                                    Colors.transparent, BlendMode.multiply)
+                                : const ColorFilter.mode(
+                                    Colors.grey, BlendMode.saturation),
+                            child: Image.asset(
+                              isTurkish
+                                  ? 'assets/buttons_new/large_tr.png'
+                                  : 'assets/buttons_new/large_en.png',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      '45₺',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    if (!canSellLarge)
+                      const Text('Stokta yok',
+                          style: TextStyle(
                             fontSize: 30,
-                            color: Colors.red, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              // büyük
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Opacity(
-                    opacity: canSellLarge ? 1.0 : 0.4,
-                    child: InkWell(
-                      onTap: canSellLarge
-                          ? () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const PaymentPage(
-                                    title: 'largeCup',
-                                    volume: '400ml',
-                                    price: '45',
-                                    prepSeconds: 15,
-                                  ),
-                                ),
-                              );
-                            }
-                          : null,
-                      child: SizedBox(
-                        width: 380,
-                        height: 240,
-                        child: ColorFiltered(
-                          colorFilter: canSellLarge
-                              ? const ColorFilter.mode(
-                                  Colors.transparent, BlendMode.multiply)
-                              : const ColorFilter.mode(
-                                  Colors.grey, BlendMode.saturation),
-                          child: Image.asset(
-                            isTurkish
-                                ? 'assets/buttons_new/large_tr.png'
-                                : 'assets/buttons_new/large_en.png',
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    '45₺',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  if (!canSellLarge)
-                    const Text('Stokta yok',
-                        style: TextStyle(
-                          fontSize: 30,
-                            color: Colors.red, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ],
+                              color: Colors.red, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
