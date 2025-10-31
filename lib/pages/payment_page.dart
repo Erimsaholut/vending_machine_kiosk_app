@@ -1,11 +1,10 @@
+import '../core/inactivity_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../core/inactivity_watcher.dart';
-
-// import '../pages/test_refund_page.dart'; // test butonunu istersen debug'ta kullanırsın
 import '../core/app_colors.dart';
 import 'preparing_page.dart';
 import '../core/i18n.dart';
+// import '../pages/test_refund_page.dart'; // test butonunu istersen debug'ta kullanırsın
 
 class PaymentPage extends StatelessWidget {
   final String title;

@@ -71,36 +71,37 @@ class _ServicePanelPageState extends State<ServicePanelPage> {
                   value: levels['liquid'] ?? 0,
                   maxVal: 80000,
                   onChange: (newValue, duration) async {
+                    final now = DateTime.now();
+
+                    // Eğer süre 0 seçildiyse isActive false olmalı
+                    if (duration == 0) {
+                      await _service.machineRef.update({
+                        'levels.liquid': newValue,
+                        'levels.liquidBand':
+                            _service.bandForLiquid(newValue, 80000),
+                        'processing.isActive': false,
+                        'processing.until': null,
+                      });
+                      return;
+                    }
+
                     final until = Timestamp.fromDate(
-                      DateTime.now().add(Duration(minutes: duration)),
-                    );
+                        now.add(Duration(minutes: duration)));
                     await _service.machineRef.update({
                       'levels.liquid': newValue,
                       'levels.liquidBand':
-                      _service.bandForLiquid(newValue, 80000),
+                          _service.bandForLiquid(newValue, 80000),
                       'processing.isActive': true,
                       'processing.until': until,
                     });
                   },
                 ),
                 const SizedBox(height: 24),
-
-
-
-
-
-
                 ElevatedButton.icon(
                   onPressed: () => _service.toggleMachineStatus(isActive),
                   icon: Icon(isActive ? Icons.pause : Icons.play_arrow),
                   label: Text(isActive ? 'Satışı Kapat' : 'Satışı Aç'),
                 ),
-
-
-
-
-
-
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
                   onPressed: () async {
