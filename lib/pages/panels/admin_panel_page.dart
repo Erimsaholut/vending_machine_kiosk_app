@@ -9,13 +9,17 @@ class AdminPanelPage extends StatefulWidget {
 }
 
 class _AdminPanelPageState extends State<AdminPanelPage> {
-  final machineRef = FirebaseFirestore.instance.collection('machines').doc('M-0001');
+  final machineRef =
+      FirebaseFirestore.instance.collection('machines').doc('M-0001');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Paneli'),
+        title: const Text(
+          'Admin Paneli SERVİCE PANEL KULLANIN !',
+          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold,fontSize: 32.0),
+        ),
         centerTitle: true,
       ),
       body: StreamBuilder<DocumentSnapshot>(
@@ -41,13 +45,15 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Makine Bilgileri', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                const Text('Makine Bilgileri',
+                    style:
+                        TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
-                // Move editable sections to the top
-                _buildEditableSection('Stok (inventory)', inventory, 'inventory', {'largeCups': 120, 'smallCups': 150}),
-                _buildEditableSection('Seviye (levels)', levels, 'levels', {'liquid': 20000}),
+                _buildEditableSection('Stok (inventory)', inventory,
+                    'inventory', {'largeCups': 120, 'smallCups': 150}),
+                _buildEditableSection(
+                    'Seviye (levels)', levels, 'levels', {'liquid': 20000}),
                 const SizedBox(height: 16),
-                // GridView for read-only cards
                 SizedBox(
                   child: GridView.count(
                     crossAxisCount: 2,
@@ -62,15 +68,20 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                         'Bugünkü Kar': '${dailyProfit['profit_today'] ?? 0} ₺',
                       }),
                       _buildReadOnlyCard('Satış Bilgileri', {
-                        'Büyük Satış': '${sales['largeSold'] ?? 0} (${sales['largeTl'] ?? 0} ₺)',
-                        'Küçük Satış': '${sales['smallSold'] ?? 0} (${sales['smallTl'] ?? 0} ₺)',
+                        'Büyük Satış':
+                            '${sales['largeSold'] ?? 0} (${sales['largeTl'] ?? 0} ₺)',
+                        'Küçük Satış':
+                            '${sales['smallSold'] ?? 0} (${sales['smallTl'] ?? 0} ₺)',
                       }),
                       _buildReadOnlyCard('İade Bilgileri', {
                         'Toplam İade': '${refunds['total'] ?? 0}',
                         'Miktar (ml)': '${refunds['amountMl'] ?? 0}',
                         'Tutar (₺)': '${refunds['amountTl'] ?? 0}',
                       }),
-                      _buildReadOnlyCard('Durum', {'Satış Aktif mi': (status['isActive'] ?? false) ? 'Evet' : 'Hayır'}),
+                      _buildReadOnlyCard('Durum', {
+                        'Satış Aktif mi':
+                            (status['isActive'] ?? false) ? 'Evet' : 'Hayır'
+                      }),
                     ],
                   ),
                 ),
@@ -85,7 +96,8 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                         'performedBy': 'admin@system',
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Bakım kaydı başarıyla eklendi')),
+                        const SnackBar(
+                            content: Text('Bakım kaydı başarıyla eklendi')),
                       );
                     },
                   ),
@@ -107,16 +119,20 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(title,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            ...info.entries.map((e) => Text('${e.key}: ${e.value}', style: const TextStyle(fontSize: 16))),
+            ...info.entries.map((e) => Text('${e.key}: ${e.value}',
+                style: const TextStyle(fontSize: 16))),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildEditableSection(String title, Map<String, dynamic> data, String path, Map<String, int> limits) {
+  Widget _buildEditableSection(String title, Map<String, dynamic> data,
+      String path, Map<String, int> limits) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       elevation: 3,
@@ -125,14 +141,18 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(title,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             ...data.entries.where((e) => e.value is num).map((e) {
               final key = e.key;
               final value = e.value ?? 0;
               final maxVal = limits[key] ?? 100;
               final pct = (value / maxVal).clamp(0.0, 1.0);
-              Color barColor = pct < 0.2 ? Colors.red : (pct < 0.5 ? Colors.orange : Colors.teal);
+              Color barColor = pct < 0.2
+                  ? Colors.red
+                  : (pct < 0.5 ? Colors.orange : Colors.teal);
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -141,20 +161,36 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                   children: [
                     Text('$key: $value', style: const TextStyle(fontSize: 16)),
                     const SizedBox(height: 4),
-                    LinearProgressIndicator(value: pct, color: barColor, backgroundColor: Colors.grey[300], minHeight: 10),
+                    LinearProgressIndicator(
+                        value: pct,
+                        color: barColor,
+                        backgroundColor: Colors.grey[300],
+                        minHeight: 10),
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        IconButton(onPressed: () => _updateValue(path, key, value - 5, maxVal), icon: const Icon(Icons.remove_circle_outline)),
-                        IconButton(onPressed: () => _updateValue(path, key, value + 5, maxVal), icon: const Icon(Icons.add_circle_outline)),
+                        IconButton(
+                            onPressed: () =>
+                                _updateValue(path, key, value - 5, maxVal),
+                            icon: const Icon(Icons.remove_circle_outline)),
+                        IconButton(
+                            onPressed: () =>
+                                _updateValue(path, key, value + 5, maxVal),
+                            icon: const Icon(Icons.add_circle_outline)),
                         const SizedBox(width: 8),
                         ElevatedButton(
-                          onPressed: () => _updateValue(path, key, maxVal, maxVal),
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
+                          onPressed: () =>
+                              _updateValue(path, key, maxVal, maxVal),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white),
                           child: Text('Tam ($maxVal)'),
                         ),
                         const SizedBox(width: 8),
-                        OutlinedButton(onPressed: () => _enterManualValue(path, key, maxVal), child: const Text('Değer Gir')),
+                        OutlinedButton(
+                            onPressed: () =>
+                                _enterManualValue(path, key, maxVal),
+                            child: const Text('Değer Gir')),
                       ],
                     ),
                   ],
@@ -167,7 +203,8 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
     );
   }
 
-  Future<void> _updateValue(String path, String key, int newValue, int maxVal) async {
+  Future<void> _updateValue(
+      String path, String key, int newValue, int maxVal) async {
     final updated = newValue.clamp(0, maxVal);
     await machineRef.update({'$path.$key': updated});
   }
@@ -184,12 +221,15 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
           decoration: const InputDecoration(hintText: 'Yeni değer girin'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('İptal')),
           TextButton(
             onPressed: () async {
               final value = int.tryParse(controller.text.trim());
               if (value == null || value < 0 || value > maxVal) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Değer 0 ile $maxVal arasında olmalı.')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Değer 0 ile $maxVal arasında olmalı.')));
                 return;
               }
               await machineRef.update({'$path.$key': value});

@@ -2,11 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'core/inactivity_watcher.dart';
 import 'firebase_options.dart';
 import 'home_page.dart';
-
-// 👇 BUNU EKLE
-import 'core/inactivity_watcher.dart';
 
 Future<void> _ensureAuth() async {
   final auth = FirebaseAuth.instance;
